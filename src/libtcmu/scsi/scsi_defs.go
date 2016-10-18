@@ -11,6 +11,7 @@ package scsi
 
 /*
  * SCSI Opcodes
+ *  scsi_command.pdf   3.0 Command Reference  p54(71)
  */
 const (
 	TestUnitReady              = 0x00

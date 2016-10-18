@@ -52,6 +52,7 @@ func (cmd *ScsiCmd) Command() byte {
 }
 
 // CdbLen returns the length of the command, in bytes.
+// scsi命令的长度 scsi_command.pdf   3.0 Command Reference  p54(71)  2.1 Command Descriptor Block (CDB)
 func (cmd *ScsiCmd) CdbLen() int {
 	opcode := cmd.cdb[0]
 	// See spc-4 4.2.5.1 operation code
@@ -71,6 +72,7 @@ func (cmd *ScsiCmd) CdbLen() int {
 }
 
 // LBA returns the block address that this command wishes to access.
+// scsi_command.pdf   3.0 Command Reference (LOGICAL BLOCK ADDRESS)   2.1 Command Descriptor Block (CDB)
 func (cmd *ScsiCmd) LBA() uint64 {
 	order := binary.BigEndian
 
@@ -93,6 +95,7 @@ func (cmd *ScsiCmd) LBA() uint64 {
 }
 
 // XferLen returns the length of the data buffer this command provides for transfering data to/from the kernel.
+// scsi_command.pdf   3.0 Command Reference  (TRANSFER LENGTH)  2.1 Command Descriptor Block (CDB)
 func (c *ScsiCmd) XferLen() uint32 {
 	order := binary.BigEndian
 	switch c.CdbLen() {

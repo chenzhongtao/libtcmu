@@ -11,14 +11,15 @@ import (
 	"syscall"
 	"time"
 
-	"golang.org/x/sys/unix"
-	"github.com/docker/docker/pkg/mount"
 	"sync"
+
+	"github.com/docker/docker/pkg/mount"
+	"golang.org/x/sys/unix"
 )
 
 const (
 	CONFIG_DIR_FORMAT = "/sys/kernel/config/target/core/user_%d"
-	SCSI_DIR = "/sys/kernel/config/target/loopback"
+	SCSI_DIR          = "/sys/kernel/config/target/loopback"
 
 	CMD_RING_SIZE = 128
 )
@@ -33,9 +34,9 @@ type VirBlkDev struct {
 	major      int
 	minor      int
 
-	uioFd      int
-	mapsize    uint64
-	mmap       []byte
+	uioFd   int
+	mapsize uint64
+	mmap    []byte
 	//cmdChan    chan *ScsiCmd
 	//respChan   chan ScsiResponse
 	cmdTail    uint32
@@ -44,8 +45,9 @@ type VirBlkDev struct {
 	shut       chan struct{}
 	wait       chan struct{}
 
-	cmdRing    *ScsiResponseRing
-	cmdDone    chan int
+	cmdRing *ScsiResponseRing
+	cmdDone chan int
+	//bufferArray [128][64 << 10]byte
 }
 
 // WWN provides two WWNs, one for the device itself and one for the loopback device created by the kernel.
@@ -100,13 +102,13 @@ func newVirtBlockDevice(devPath string, scsi *ScsiHandler) (*VirBlkDev, error) {
 		initialize: false,
 		shut:       make(chan struct{}),
 		wait:       make(chan struct{}),
-		cmdRing:    &ScsiResponseRing{
+		cmdRing: &ScsiResponseRing{
 			capacity: CMD_RING_SIZE,
 			head:     0,
 			tail:     0,
 			data:     make([]*ScsiResponse, CMD_RING_SIZE),
 		},
-		cmdDone:    make(chan int, CMD_RING_SIZE),
+		cmdDone: make(chan int, CMD_RING_SIZE),
 	}
 	err := vbd.Close()
 	if err != nil {
@@ -275,6 +277,7 @@ func (vbd *VirBlkDev) start() (err error) {
 	//vbd.cmdChan = make(chan *ScsiCmd, 128)
 	//vbd.respChan = make(chan ScsiResponse, 128)
 	go vbd.startPollx()
+	//go vbd.startPoll()
 	//go vbd.beginPoll()
 	//vbd.scsi.DevReady(vbd.cmdChan, vbd.respChan)
 	return
@@ -323,7 +326,7 @@ func (vbd *VirBlkDev) openDevice(user string, vol string, uio string) error {
 	var err error
 	vbd.deviceName = vol
 
-	vbd.uioFd, err = syscall.Open(fmt.Sprintf("/dev/%s", uio), syscall.O_RDWR | syscall.O_NONBLOCK | syscall.O_CLOEXEC, 0600)
+	vbd.uioFd, err = syscall.Open(fmt.Sprintf("/dev/%s", uio), syscall.O_RDWR|syscall.O_NONBLOCK|syscall.O_CLOEXEC, 0600)
 	if err != nil {
 		return err
 	}
@@ -337,7 +340,7 @@ func (vbd *VirBlkDev) openDevice(user string, vol string, uio string) error {
 		return err
 	}
 
-	vbd.mmap, err = syscall.Mmap(vbd.uioFd, 0, int(vbd.mapsize), syscall.PROT_READ | syscall.PROT_WRITE, syscall.MAP_SHARED)
+	vbd.mmap, err = syscall.Mmap(vbd.uioFd, 0, int(vbd.mapsize), syscall.PROT_READ|syscall.PROT_WRITE, syscall.MAP_SHARED)
 	vbd.cmdTail = vbd.mbCmdTail()
 	//vbd.debugPrintMb()
 
@@ -409,7 +412,7 @@ func (vbd *VirBlkDev) teardown() error {
 	return nil
 }
 
-func removeAsync(path string, done chan <- error) {
+func removeAsync(path string, done chan<- error) {
 	//log.Debugf("Removing: %s", path)
 	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
 		log.Debugf("Unable to remove: %v", path)

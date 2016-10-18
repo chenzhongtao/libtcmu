@@ -7,20 +7,27 @@ package tcmu
 // Go should handle the endianness .
 
 const (
-	offLenOp = 0
-	offCmdId = 4
-	offKFlags = 6
-	offUFlags = 7
-	entReqRespOff = 8
-	offReqIovCnt = entReqRespOff + 0
+	offLenOp         = 0
+	offCmdId         = 4
+	offKFlags        = 6
+	offUFlags        = 7
+	entReqRespOff    = 8
+	offReqIovCnt     = entReqRespOff + 0
 	offReqIovBidiCnt = entReqRespOff + 4
-	offReqIovDifCnt = entReqRespOff + 8
-	offReqCdbOff = entReqRespOff + 16
+	offReqIovDifCnt  = entReqRespOff + 8
+	offReqCdbOff     = entReqRespOff + 16 //看结构体定义感觉是12，由于8字节对齐，所以是16
 
-	iovSize = 16
+	iovSize        = 16
 	offReqIov0Base = entReqRespOff + 40
-	offReqIov0Len = entReqRespOff + 48
+	offReqIov0Len  = entReqRespOff + 48
 
 	offRespSCSIStatus = entReqRespOff + 0
-	offRespSense = entReqRespOff + 8
+	offRespSense      = entReqRespOff + 8
 )
+
+/*
+struct iovec {
+    ptr_t iov_base; // Starting address
+	size_t iov_len; // Length in bytes
+};
+*/

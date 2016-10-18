@@ -181,7 +181,7 @@ func EmulateEvpdInquiry(cmd *ScsiCmd, inq *InquiryInfo) (ScsiResponse, error) {
 
 		cmd.Write(data[:used])
 		return cmd.Ok(), nil
-	case 0xb0:  // Block Limits
+	case 0xb0: // Block Limits
 		data := make([]byte, 64)
 		data[1] = 0xb0
 
@@ -251,7 +251,7 @@ func CachingModePage(w io.Writer, wce bool) {
 	buf[1] = 0x12 // page length (20, forced)
 	//buf[2] = buf[2] | 0x01  //set RCD
 	if wce {
-		buf[2] = buf[2] | 0x04  //set WCE
+		buf[2] = buf[2] | 0x04 //set WCE
 	}
 	w.Write(buf)
 }
@@ -349,8 +349,9 @@ func EmulateModeSelect(cmd *ScsiCmd, wce bool) (ScsiResponse, error) {
 func EmulateRead(cmd *ScsiCmd, r io.ReaderAt) (ScsiResponse, error) {
 	offset := cmd.LBA() * uint64(cmd.VirBlkDev().Sizes().SectorSize)
 	length := int(cmd.XferLen() * uint32(cmd.VirBlkDev().Sizes().SectorSize))
-    //log.Debugf("EmulateRead offset:%d length:%d", offset, length)
+	//log.Debugf("EmulateRead offset:%d length:%d", offset, length)
 	cmd.Buffer = make([]byte, length)
+	//cmd.Buffer = cmd.Buffer[:length]
 	/*
 		if cmd.Buffer == nil {
 			cmd.Buffer = make([]byte, length)
@@ -389,6 +390,7 @@ func EmulateWrite(cmd *ScsiCmd, r io.WriterAt) (ScsiResponse, error) {
 	length := int(cmd.XferLen() * uint32(cmd.VirBlkDev().Sizes().SectorSize))
 	//log.Debugf("EmulateWrite offset:%d length:%d", offset, length)
 	cmd.Buffer = make([]byte, length)
+	//cmd.Buffer = cmd.Buffer[:length]
 	/*
 		if cmd.Buffer == nil {
 			cmd.Buffer = make([]byte, length)

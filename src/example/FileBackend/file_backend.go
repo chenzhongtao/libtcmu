@@ -10,6 +10,8 @@ import (
 	"runtime"
 	"syscall"
 	//"time"
+
+	"github.com/Sirupsen/logrus"
 )
 
 var (
@@ -18,7 +20,7 @@ var (
 )
 
 func test(hba *tcmu.HBA) {
-	filename := "vol1"
+	filename := os.Args[2]
 	f, err := os.OpenFile(filename, os.O_RDWR, 0700)
 	if err != nil {
 		die("couldn't open: %v", err)
@@ -56,7 +58,7 @@ func Create(name string, hba *tcmu.HBA) {
 	//defer fvol1.Close()
 	fi, _ := fvol1.Stat()
 
-	_, err = hba.CreateDevice(fi.Name(), 2 * 1024 *1024 *1024, 1024, fvol1)
+	_, err = hba.CreateDevice(fi.Name(), fi.Size(), 1024, fvol1)
 	if err != nil {
 		die("couldn't tcmu: %v", err)
 	}
@@ -90,7 +92,7 @@ func mainRoutine() {
 func CreateOne() {
 	hba, _ := tcmu.NewHBA("tcomet")
 	hba.Start()
-	filename := "vol2"
+	filename := os.Args[2]
 
 	Create(filename, hba)
 
@@ -111,7 +113,7 @@ func CreateOne() {
 func CreateMany() {
 	hba, _ := tcmu.NewHBA("tcomet")
 	hba.Start()
-	filename := "vol1"
+	filename := os.Args[2]
 
 	mainClose := make(chan bool)
 	signalChan := make(chan os.Signal, 1)
@@ -119,7 +121,7 @@ func CreateMany() {
 
 	go func() {
 		for _ = range signalChan {
-			buf := make([]byte, 8192 * 4)
+			buf := make([]byte, 8192*4)
 			runtime.Stack(buf, true)
 			fmt.Println("\n[main] Received an interrupt, stopping services...num:", runtime.NumGoroutine())
 			//fmt.Println(string(buf))
@@ -138,15 +140,16 @@ func CreateMany() {
 }
 
 func die(why string, args ...interface{}) {
-	fmt.Fprintf(os.Stderr, why + "\n", args...)
+	fmt.Fprintf(os.Stderr, why+"\n", args...)
 	os.Exit(1)
 }
 
-
 func main() {
-    if len(os.Args) < 2 {
-	    return
-    }
+	logrus.SetLevel(logrus.DebugLevel)
+
+	if len(os.Args) < 3 {
+		return
+	}
 
 	if os.Args[1] == "once" {
 		CreateOne()
@@ -160,3 +163,18 @@ func main() {
 
 	}
 }
+
+/*
+go build file_backend.go
+
+truncate -s 1G /home/vol2
+
+modprobe target_core_user
+
+./file_backend once
+
+mount -t tmpfs -o size=1400m tmpfs /tmp2
+truncate -s 1G /tmp2/vol2
+
+dd if=/dev/zero of=/dev/tcomet/vol2 bs=4K count=262144
+*/

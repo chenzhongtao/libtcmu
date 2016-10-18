@@ -5,8 +5,9 @@ import (
 
 	"libtcmu/scsi"
 
-	"golang.org/x/sys/unix"
 	"syscall"
+
+	"golang.org/x/sys/unix"
 )
 
 /*
@@ -111,7 +112,7 @@ func (vbd *VirBlkDev) startPollx() {
 				vbd.wait <- struct{}{}
 				return
 			}
-           // log.Debugf("11111")
+			// log.Debugf("11111")
 			vbd.clearUioEvents()
 			cmd, _ := vbd.getNextCommand() //never return err
 			for cmd != nil {
@@ -138,15 +139,29 @@ func (vbd *VirBlkDev) HandleRequestx(cmd *ScsiCmd, index int) {
 
 	vbd.cmdRing.data[index] = &resp
 
-    vbd.cmdDone <- index
+	vbd.cmdDone <- index
 }
+
+/*
+func (vbd *VirBlkDev) HandleRequestx2(cmd *ScsiCmd, index int) {
+	cmd.Buffer = vbd.bufferArray[index][:]
+	resp, _ := vbd.scsi.Handler.HandleCommand(cmd)
+
+	vbd.cmdRing.data[index] = &resp
+
+	vbd.cmdDone <- index
+}
+*/
 
 func (vbd *VirBlkDev) startRespx() {
 	//log.Debugf("startRespx")
 	for {
 		select {
 		case index := <-vbd.cmdDone:
+			//log.Debugf("tail: %d, index: %d", vbd.cmdRing.tail, index)
+			//跳过index 小于和大于 tail 的
 			if vbd.cmdRing.tail == index {
+				//log.Debugf("tail: %d, index: %d", vbd.cmdRing.tail, index)
 				for {
 					resp := vbd.cmdRing.data[vbd.cmdRing.tail]
 					if resp == nil {
@@ -325,8 +340,14 @@ func (vbd *VirBlkDev) completeCommand(resp ScsiResponse) error {
 
 func (vbd *VirBlkDev) getNextCommand() (*ScsiCmd, error) {
 	//vbd.debugPrintMb()
-	//fmt.Printf("nextEntryOff: %d\n", vbd.nextEntryOff())
-	//fmt.Printf("headEntryOff: %d\n", vbd.headEntryOff())
+	//fmt.Printf("\nnextEntryOff: %d\n", vbd.nextEntryOff())
+	//fmt.Printf("headEntryOff: %d\n", vbd.headEntryOff()) // vbd.mbCmdHead() + vbd.mbCmdrOffset()
+	//fmt.Printf("mbCmdHead(): %d\n", vbd.mbCmdHead())
+	//fmt.Printf("mbCmdrOffset: %d\n", vbd.mbCmdrOffset()) // 一直是128
+	//fmt.Printf("mbCmdTail: %d\n", vbd.mbCmdTail())
+	//fmt.Printf("vbd.cmdTail: %d\n", vbd.cmdTail)
+	//fmt.Printf("mbCmdrSize: %d\n", vbd.mbCmdrSize()) //一直是 65408 65536-128  command ring区域的大小
+
 	for vbd.nextEntryOff() != vbd.headEntryOff() {
 		off := vbd.nextEntryOff()
 		if vbd.entHdrOp(off) == tcmuOpPad {
@@ -339,6 +360,7 @@ func (vbd *VirBlkDev) getNextCommand() (*ScsiCmd, error) {
 			}
 			out.cdb = vbd.entCdb(off)
 			vecs := int(vbd.entReqIovCnt(off))
+			//fmt.Printf("vecs: %d\n", vecs)
 			out.vecs = make([][]byte, vecs)
 			for i := 0; i < vecs; i++ {
 				v := vbd.entIovecN(off, i)
@@ -354,9 +376,9 @@ func (vbd *VirBlkDev) getNextCommand() (*ScsiCmd, error) {
 }
 
 func (vbd *VirBlkDev) printEnt(off int) {
-	for i, x := range vbd.mmap[off : off + vbd.entHdrGetLen(off)] {
+	for i, x := range vbd.mmap[off : off+vbd.entHdrGetLen(off)] {
 		fmt.Printf("0x%02x ", x)
-		if i % 16 == 15 {
+		if i%16 == 15 {
 			fmt.Printf("\n")
 		}
 	}
