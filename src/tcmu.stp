@@ -1,0 +1,155 @@
+
+probe begin
+{
+  printf ("start\n")
+}
+
+probe module("target_core_user").function("*") {
+ if ( ppfunc()=="tcmu_module_init")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+      //printf ("%s\n", $varname )
+
+ }
+ if ( ppfunc()=="tcmu_module_exit")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_attach_hba")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_detach_hba")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_alloc_device")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_configure_device")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_free_device")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_parse_cdb")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_set_configfs_dev_params")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_show_configfs_dev_params")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="sbc_get_device_type")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_get_blocks")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+
+
+
+ if ( ppfunc()=="tcmu_alloc_cmd")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_flush_dcache_range")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="spc_used")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="spc_free")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="alloc_and_scatter_data_area")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="gather_and_free_data_area")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="is_ring_space_avail")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_queue_cmd_ring")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_queue_cmd")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_handle_completion")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_handle_completions")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_check_expired_cmd")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_device_timedout")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_irqcontrol")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_find_mem_index")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_vma_fault")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_mmap")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_open")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_release")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_netlink_event")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_check_pending_cmd")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_dev_call_rcu")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+ if ( ppfunc()=="tcmu_pass_op")
+ {
+      printf ("%s(%d)  %s     %s\n", execname(), pid(),ppfunc(),$$parms)
+ }
+
+
+}

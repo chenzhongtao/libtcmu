@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"path/filepath"
 
 	"libtcmu"
 	//"time"
@@ -103,7 +104,7 @@ func CreateOne() {
 	go func() {
 		for _ = range signalChan {
 			fmt.Println("\n[main] Received an interrupt, stopping services...")
-			Close(filename, hba)
+			Close(filepath.Base(filename), hba)
 			close(mainClose)
 		}
 	}()
